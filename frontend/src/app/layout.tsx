@@ -1,38 +1,29 @@
-import './globals.css';
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import { ThemeProvider } from '@/components/theme-provider';
-import { Navigation } from '@/components/navigation';
-import { Toaster } from '@/components/ui/toaster';
+// src/app/layout.tsx
+import { Inter } from 'next/font/google'
+import './globals.css'
+import { Sidebar } from '@/components/layout/Sidebar'
+import { TopNav } from '@/components/layout/TopNav'
+import { MainLayout } from '@/components/layout/MainLayout'
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'] })
 
-export const metadata: Metadata = {
+export const metadata = {
   title: 'Bhilaipedia - IIT Bhilai Knowledge Base',
-  description: 'The internal knowledge base for IIT Bhilai community',
-};
+  description: 'The comprehensive knowledge base for the IIT Bhilai community',
+}
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Navigation />
-          <main className="min-h-screen bg-background">
-            {children}
-          </main>
-          <Toaster />
-        </ThemeProvider>
+    <html lang="en" className="h-full">
+      <body className={`${inter.className} h-full`}>
+        <MainLayout>
+          {children}
+        </MainLayout>
       </body>
     </html>
-  );
+  )
 }

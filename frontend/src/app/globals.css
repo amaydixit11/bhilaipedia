@@ -80,3 +80,10 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* globals.css */
+@layer components {
+  .border-border {
+    border: 0px solid #ccc; /* Example custom border */
+  }
+}
