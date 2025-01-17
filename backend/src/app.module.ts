@@ -14,9 +14,24 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoryModule } from './modules/category/category.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { RbacModule } from './modules/rbac/rbac.module';
+import { DatabaseConfig } from './config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [AuthModule, 
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      cache: true,
+      load: [DatabaseConfig],
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        ...configService.get('database'),
+      }),
+      inject: [ConfigService],
+    }),
+    AuthModule, 
     UserModule, 
     ArticleModule, 
     DiscussionModule, 
@@ -25,16 +40,7 @@ import { RbacModule } from './modules/rbac/rbac.module';
     SearchModule, 
     CommonModule, 
     DatabaseModule,
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'root',
-      password: 'root',
-      database: 'bhilaipedia',
-      autoLoadEntities: true,
-      synchronize: true, // Disable in production
-    }),
+    // TypeOrmModule.forRoot(typeOrmConfig),
     CategoryModule,
     CommentModule,
     RbacModule,

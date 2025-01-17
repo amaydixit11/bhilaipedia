@@ -12,6 +12,7 @@ import { AssignRoleUseCase } from './usecases/assign-role.usecase';
 import { UpdateProfileUseCase } from './usecases/update-profile.usecase';
 import { ViewProfileUseCase } from './usecases/view-profile.usecase';
 import { ViewActivityUseCase } from './usecases/view-activity.usecase';
+import { UserRepository } from './repositories/user.repository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, UserProfile, UserActivity])],
@@ -24,6 +25,7 @@ import { ViewActivityUseCase } from './usecases/view-activity.usecase';
     UpdateProfileUseCase,
     ViewProfileUseCase,
     ViewActivityUseCase,
+    UserRepository
   ],
   exports: [UserService],
 })
