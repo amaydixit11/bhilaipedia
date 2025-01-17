@@ -15,14 +15,14 @@ export default function ArticleContent({ articleSlug }: { articleSlug: string })
   const { data: article, isLoading, isError } = useQuery<Article | null>({
     queryKey: ['article', articleSlug],
     queryFn: () => getArticleBySlug(articleSlug),
-    staleTime: 1000 * 60 * 5, // Cache data for 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
 
   const mutation = useMutation({
     mutationFn: (updatedContent: ArticleUpdateInput) =>
       updateArticle(articleSlug, updatedContent, article?.author.id || ''),
     onSuccess: (updatedArticle) => {
-      queryClient.setQueryData(['article', articleSlug], updatedArticle); // Update cached data
+      queryClient.setQueryData(['article', articleSlug], updatedArticle);
       setIsEditing(false);
     },
     onError: (error) => {

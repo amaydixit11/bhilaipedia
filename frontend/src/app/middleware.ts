@@ -1,36 +1,40 @@
-// middleware.ts
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { Database } from '@/types/database';
+import { createServerClient } from "@supabase/ssr";
+import { type NextRequest, NextResponse } from "next/server";
 
-export async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
-  const supabase = createMiddlewareClient<Database>({ req, res });
+export const updateSession = async (request: NextRequest) => {
+  try {
+    // Create an unmodified response
+    let response = NextResponse.next();
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll(); // Getting cookies from the request
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, options) // Setting cookies in the response
+            );
+          },
+        },
+      },
+    );
 
-  // Protect routes that require authentication
-  const protectedPaths = ['/articles/edit', '/articles/new'];
-  const isProtectedPath = protectedPaths.some(path => 
-    req.nextUrl.pathname.startsWith(path)
-  );
+    // Refresh session if expired (for Server Components)
+    const { data, error } = await supabase.auth.getUser();
 
-  if (isProtectedPath && !session) {
-    const redirectUrl = new URL('/login', req.url);
-    redirectUrl.searchParams.set('redirectTo', req.nextUrl.pathname);
-    return NextResponse.redirect(redirectUrl);
+    // Protected routes check
+    if (request.nextUrl.pathname.startsWith("/protected") && error) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+
+    return response;
+  } catch (e) {
+    // Error handling if Supabase client creation fails
+    console.error('Supabase client error:', e);
+    return NextResponse.next();
   }
-
-  return res;
-}
-
-export const config = {
-  matcher: [
-    '/articles/edit/:path*',
-    '/articles/new',
-    '/profile/:path*',
-  ],
 };
